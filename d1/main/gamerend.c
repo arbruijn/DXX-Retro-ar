@@ -547,9 +547,14 @@ extern void ogl_loadbmtexture(grs_bitmap *bm);
 // This actually renders the new cockpit onto the screen.
 void update_cockpits()
 {
-	grs_bitmap *bm;
-	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]]);
-	bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]].index];
+	grs_bitmap *bm = NULL;
+	switch( PlayerCfg.CockpitMode[1] )	{
+		case CM_FULL_COCKPIT:
+		case CM_REAR_VIEW:
+		case CM_STATUS_BAR:
+			PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]]);
+			bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]].index];
+	}
 
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
