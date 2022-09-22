@@ -1239,6 +1239,7 @@ void reticle_config()
 }
 
 int opt_gr_texfilt, opt_gr_movietexfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi, opt_gr_disablecockpit;
+int opt_gr_classicdepth;
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1279,7 +1280,7 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 void graphics_config()
 {
 #ifdef OGL
-	newmenu_item m[18];
+	newmenu_item m[19];
 	int i = 0;
 #else
 	newmenu_item m[6];
@@ -1310,6 +1311,8 @@ void graphics_config()
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
 	opt_gr_multisample = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="4x multisampling"; m[nitems].value = GameCfg.Multisample; nitems++;
+	opt_gr_classicdepth = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="Classic Depth Ordering"; m[nitems].value = GameCfg.ClassicDepth; nitems++;
 #endif
 	opt_gr_fpsindi = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="FPS Counter"; m[nitems].value = GameCfg.FPSIndicator; nitems++;
@@ -1342,6 +1345,7 @@ void graphics_config()
 	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
 	GameCfg.VSync = m[opt_gr_vsync].value;
 	GameCfg.Multisample = m[opt_gr_multisample].value;
+	GameCfg.ClassicDepth = m[opt_gr_classicdepth].value;
 #endif
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
 	GameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
