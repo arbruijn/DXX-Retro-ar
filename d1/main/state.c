@@ -687,7 +687,8 @@ int state_save_all_sub(char *filename, char *desc)
 
 //Save trigger info
 	PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
-	PHYSFS_write(fp, Triggers, sizeof(trigger), Num_triggers);
+	for (i = 0; i < Num_triggers; i++)
+		trigger_write(&Triggers[i], 29, fp); // fixme: support BE
 
 //Save tmap info
 	for (i = 0; i <= Highest_segment_index; i++)

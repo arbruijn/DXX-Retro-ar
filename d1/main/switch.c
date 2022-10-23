@@ -286,7 +286,9 @@ void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 
-	PHYSFS_read(fp, t, sizeof(trigger), n);
+	//PHYSFS_read(fp, t, sizeof(trigger), n);
+	for (i = 0; i < n; i++)
+		trigger_read(&Triggers[i], fp); // fixme: support native BE
 
 	if (swap)
 		for (i = 0; i < n; i++)
