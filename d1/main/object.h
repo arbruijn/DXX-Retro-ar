@@ -598,6 +598,8 @@ extern void object_rw_swap(object_rw *obj_rw, int swap);
 extern void object_rw_to_object(object_rw *obj_rw, object *obj);
 extern void object_to_object_rw(object *obj, object_rw *obj_rw);
 
+extern void set_homing_update_rate(int update_rate);
+
 
 #endif
  
