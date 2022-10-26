@@ -243,6 +243,7 @@ void add_observatory_stat(int player_num, int event_type) {
 		kill_streak[player_num] = 0;
 	}
 
+	#if 0
 	con_printf(CON_NORMAL, "Last 5 events for %i\n", player_num);
 	kill_event *evt = last_event[player_num];
 	for (int i = 0; i < 5; i++) {
@@ -251,6 +252,7 @@ void add_observatory_stat(int player_num, int event_type) {
 			evt = evt->prev;
 		}
 	}
+	#endif
 }
 
 int GetMyNetRanking()
