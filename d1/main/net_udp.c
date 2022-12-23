@@ -584,7 +584,7 @@ int udp_tracker_init()
 	memset( &TrackerSocket, 0, sizeof( TrackerSocket ) );
 	
 	// Open the socket
-	udp_open_socket( 2, tracker_port );
+	//udp_open_socket( 2, tracker_port );
 	
 	// Fill the address
 	if( udp_dns_filladdr( (char *)GameArg.MplTrackerAddr, GameArg.MplTrackerPort, &TrackerSocket ) < 0 )
@@ -608,7 +608,7 @@ int udp_tracker_unregister()
 	PUT_INTEL_INT( pBuf+1, Netgame.protocol.udp.GameID );
 	
 	// Send it off
-	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+	return dxx_sendto( UDP_Socket[0], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
 }
 
 /* Tell the tracker we're starting a game */
@@ -642,7 +642,7 @@ int udp_tracker_register()
 	PUT_INTEL_SHORT( pBuf+13, DXX_VERSION_MICROi );
 	
 	// Send it off
-	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+	return dxx_sendto( UDP_Socket[0], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
 }
 
 /* Ask the tracker to send us a list of games */
@@ -666,7 +666,7 @@ int udp_tracker_reqgames()
 #endif
 	
 	// Send it off
-	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+	return dxx_sendto( UDP_Socket[0], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
 }
 
 /* The tracker has sent us a game.  Let's list it. */
