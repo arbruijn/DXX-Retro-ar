@@ -25,6 +25,7 @@ struct snd_info
 	ubyte *data;
 };
 
+#pragma pack(push, 1)
 typedef struct DiskBitmapHeader2 
 {
 	char name[8];
@@ -55,6 +56,8 @@ typedef struct DiskSoundHeader
 	int data_length;
 	int offset;
 } __pack__ DiskSoundHeader;
+
+#pragma pack(pop)
 
 struct custom_info
 {
