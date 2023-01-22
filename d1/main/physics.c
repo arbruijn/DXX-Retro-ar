@@ -477,7 +477,7 @@ void do_physics_sim(object *obj)
 	//check for correct object segment
 	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
 	{
-		if (!update_object_seg(obj)) {
+		if (!update_object_seg(obj) && !(observer && obj == ConsoleObject)) {
 			if (!(Game_mode & GM_MULTI))
 				Int3();
 			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
