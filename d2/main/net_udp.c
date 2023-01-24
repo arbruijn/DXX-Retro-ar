@@ -2894,6 +2894,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.BornWithBurner;						len++; 
 		buf[len] = Netgame.GaussAmmoStyle;						len++; 
 		buf[len] = Netgame.OriginalD1Weapons;                   len++;
+		buf[len] = Netgame.AllowCustomModelsTextures;   len++;
 
 
 		if(info_upid == UPID_SYNC) {
@@ -3129,6 +3130,7 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.BornWithBurner = data[len];                len++; 		
 		Netgame.GaussAmmoStyle = GAUSS_STYLE_STEADY_RECHARGING;    len++; 
 		Netgame.OriginalD1Weapons = data[len];             len++; 
+		Netgame.AllowCustomModelsTextures = data[len];    len++;
 
 		if(is_sync && ! multi_i_am_master()) {
 			uint my_token = GET_INTEL_INT(data + len);  len += 4;
@@ -3569,6 +3571,7 @@ static int opt_allowprefcolor, opt_ow;
 //static int opt_dark_smarts;
 static int opt_low_vulcan;
 //static int opt_gauss_duplicating, opt_gauss_depleting, opt_gauss_steady_recharge, opt_gauss_steady_respawn; 
+static int opt_allow_custom_models_textures;
 
 #ifdef USE_TRACKER
 static int opt_tracker;
@@ -3601,9 +3604,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	
 #ifdef USE_TRACKER
-	newmenu_item m[38];
+	newmenu_item m[39];
 #else
- 	newmenu_item m[37];
+ 	newmenu_item m[38];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3753,6 +3756,9 @@ void net_udp_more_game_options ()
 	
 
 
+	opt_allow_custom_models_textures=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow custom textures"; m[opt].value = Netgame.AllowCustomModelsTextures; opt++;
+
 menu:
 	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_handler, NULL, 0 );
 
@@ -3810,6 +3816,7 @@ menu:
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
 	Netgame.OriginalD1Weapons = m[opt_ow].value;
+	Netgame.AllowCustomModelsTextures = m[opt_allow_custom_models_textures].value;
 }
 
 int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
@@ -4079,6 +4086,7 @@ int net_udp_setup_game()
 	Netgame.BlackAndWhitePyros = 1;
 	Netgame.GaussAmmoStyle = GAUSS_STYLE_STEADY_RECHARGING;
 	Netgame.LowVulcan = 0; 
+	Netgame.AllowCustomModelsTextures = 0;
 
 #ifdef USE_TRACKER
 	Netgame.Tracker = 1;

@@ -529,5 +529,6 @@ typedef struct netgame_info
 #ifdef USE_TRACKER
 	ubyte						Tracker;
 #endif
+	ubyte						AllowCustomModelsTextures;
 } __pack__ netgame_info;
 #endif /* _MULTI_H */

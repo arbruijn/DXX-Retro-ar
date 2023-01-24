@@ -479,6 +479,7 @@ typedef struct netgame_info
 	ubyte						AllowPreferredColors;
 	ubyte						HomingUpdateRate;
 	ubyte						HomingNormQuick;
+	ubyte						AllowCustomModelsTextures;
 } __pack__ netgame_info;
 
 enum damage_type
