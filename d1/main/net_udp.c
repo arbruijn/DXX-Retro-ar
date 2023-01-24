@@ -2921,6 +2921,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte
 		buf[len] = Netgame.LowVulcan;					len++;
 		buf[len] = Netgame.AllowPreferredColors;        len++; 
 		buf[len] = Netgame.HomingUpdateRate;            len++;
+		buf[len] = Netgame.HomingNormQuick;             len++;
 
 		if(info_upid == UPID_SYNC) {
 			PUT_INTEL_INT(buf + len, player_tokens[to_player]); len += 4; 
@@ -3142,6 +3143,7 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		Netgame.LowVulcan = data[len];                    len++; 
 		Netgame.AllowPreferredColors = data[len];         len++; 
 		Netgame.HomingUpdateRate = data[len];             len++;
+		Netgame.HomingNormQuick = data[len];              len++;
 
 
 		if(is_sync && ! multi_i_am_master()) {
@@ -3630,6 +3632,7 @@ static int opt_spawn_no_invul, opt_spawn_short_invul, opt_spawn_long_invul, opt_
 static int opt_allowprefcolor; 
 static int opt_low_vulcan;
 static int opt_homing_update_rate;
+static int opt_homing_norm_quick;
 #ifdef USE_TRACKER
 static int opt_tracker;
 #endif
@@ -3661,9 +3664,9 @@ void net_udp_more_game_options ()
 	char PrimDupText[80],SecDupText[80],SecCapText[80]; 
 	char HomingUpdateRateText[80];
 #ifdef USE_TRACKER
-	newmenu_item m[35];
+	newmenu_item m[36];
 #else
- 	newmenu_item m[34];
+	newmenu_item m[35];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -3783,6 +3786,9 @@ void net_udp_more_game_options ()
 	sprintf( HomingUpdateRateText, "Homing Update Rate: %d", Netgame.HomingUpdateRate);
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=max(0, Netgame.HomingUpdateRate - 15); m[opt].text= HomingUpdateRateText; m[opt].min_value=0; m[opt].max_value=10; opt++;
 
+	opt_homing_norm_quick=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Homing speed drop on turn"; m[opt].value = Netgame.HomingNormQuick; opt++;
+
 menu:
 	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_handler, NULL, 0 );
 
@@ -3836,6 +3842,7 @@ menu:
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
 	Netgame.HomingUpdateRate = m[opt_homing_update_rate].value + 15;
+	Netgame.HomingNormQuick = m[opt_homing_norm_quick].value;
 
 }
 
@@ -4142,6 +4149,7 @@ int net_udp_setup_game()
 	Netgame.LowVulcan = 0;
 	Netgame.AllowPreferredColors = 1; 
 	Netgame.HomingUpdateRate = 25;
+	Netgame.HomingNormQuick = 0;
 
 #ifdef USE_TRACKER
 	Netgame.Tracker = 1;

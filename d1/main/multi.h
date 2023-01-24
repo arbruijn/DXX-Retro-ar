@@ -478,6 +478,7 @@ typedef struct netgame_info
 	ubyte						LowVulcan;
 	ubyte						AllowPreferredColors;
 	ubyte						HomingUpdateRate;
+	ubyte						HomingNormQuick;
 } __pack__ netgame_info;
 
 enum damage_type
