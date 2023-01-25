@@ -3787,7 +3787,7 @@ void net_udp_more_game_options ()
 
 	opt_homing_update_rate=opt;
 	sprintf( HomingUpdateRateText, "Homing Update Rate: %d", Netgame.HomingUpdateRate);
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=max(0, Netgame.HomingUpdateRate - 15); m[opt].text= HomingUpdateRateText; m[opt].min_value=0; m[opt].max_value=10; opt++;
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=max(0, Netgame.HomingUpdateRate - 20); m[opt].text= HomingUpdateRateText; m[opt].min_value=0; m[opt].max_value=10; opt++;
 
 	opt_homing_norm_quick=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Homing speed drop on turn"; m[opt].value = Netgame.HomingNormQuick; opt++;
@@ -3847,7 +3847,7 @@ menu:
 	//Netgame.DarkSmartBlobs = m[opt_dark_smarts].value;
 	Netgame.LowVulcan = m[opt_low_vulcan].value;
 	Netgame.AllowPreferredColors = m[opt_allowprefcolor].value;
-	Netgame.HomingUpdateRate = m[opt_homing_update_rate].value + 15;
+	Netgame.HomingUpdateRate = m[opt_homing_update_rate].value + 20;
 	Netgame.HomingNormQuick = m[opt_homing_norm_quick].value;
 	Netgame.AllowCustomModelsTextures = m[opt_allow_custom_models_textures].value;
 
@@ -3914,7 +3914,7 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 			}
 			else if (citem == opt_homing_update_rate)
 			{
-				Netgame.HomingUpdateRate=menus[opt_homing_update_rate].value + 15;
+				Netgame.HomingUpdateRate=menus[opt_homing_update_rate].value + 20;
 				sprintf( menus[opt_homing_update_rate].text, "Homing Update Rate: %d", Netgame.HomingUpdateRate);
 			} else if (citem == opt_spawn_no_invul) {
 				Netgame.SpawnStyle = SPAWN_STYLE_NO_INVUL;
