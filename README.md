@@ -12,7 +12,8 @@ Changelog
 
 <h3>-ar3 - 1/26/2023</h3>
 
-* Support for global custom textures in png format
+* Support for global custom textures in png format [(more
+  information)](#custom-texture-support)
 * Support for global custom models in ase format (D1 only)
 * Reduced Flash Effects option
 * Saves screenshots as png files
@@ -58,3 +59,19 @@ This experimental release is for D1X-Retro only.
 <h3>1.4X5 and earlier</h3>
 
 * For changes to 1.4X5 and prior, please see the source.
+
+Custom texture support
+----------------------
+
+The ar3 version can read full color hi-res textures in png format. Create a
+png file with the texture name, eg. rock021.png and put it in the main or
+data folder. For animated textures add a #framenum suffix, eg. door01#0.png
+You can also put the png files in a .dxa archive (this is a renamed
+.zip file).
+
+There is no support for supertransparency at the moment. This means if an overlay
+texture that creates a hole (grates and doors) is used, both the base and
+overlay texture show as regular low-res textures.
+
+There is no detection of custom level textures at the moment, the hi-res
+textures override both regular and custom (low-res) level textures.
