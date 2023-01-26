@@ -2085,7 +2085,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				Window_clip_top   = render_windows[nn].top;
 				Window_clip_right = render_windows[nn].right;
 				Window_clip_bot   = render_windows[nn].bot;
+#ifdef OGL
 				ogl_update_window_clip();
+#endif
 			}
 
 			render_segment(segnum, window_num);
@@ -2095,7 +2097,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				Window_clip_left  = Window_clip_top = 0;
 				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
 				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
+#ifdef OGL
 				ogl_update_window_clip();
+#endif
 			}
 
 			if (migrate_objects) {
