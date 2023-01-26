@@ -1,14 +1,39 @@
-DXX Retro
+DXX Retro-ar
 =========
 
 Latest versions
 ---------------
 
-* D1X-Retro - 1.4X6
-* D2X-Retro - 1.3a
+* D1X-Retro-ar - 1.4.X6-ar3
+* D2X-Retro-ar - 1.4.X3-ar3
 
 Changelog
 ---------
+
+<h3>-ar3 - 1/26/2023</h3>
+
+* Support for global custom textures in png format
+* Support for global custom models in ase format (D1 only)
+* Reduced Flash Effects option
+* Saves screenshots as png files
+* Fix teleporting homing missle (https://youtu.be/2dP51znGh7o)
+* Fix ship wing color shape in random texture after certain levels
+* Experimental Homing Speed Drop on Turn option (normalize quick)
+* Experimental Homing Update Rate up to 30
+
+<h3>-ar2 - 10/26/2022</h3>
+
+* Experimental Homing Update Rate option
+* Allow Packets per second up to 40
+* Allow weapon duplication up to x8
+
+<h3>-ar1 - 10/23/2022</h3>
+
+* Added Classic Depth Ordering for classic explosions
+* Support loading Rebirth save games
+* Fix flickering with headlight on
+* Fix ship brightness in endlevel terrain
+* Various compilation fixes
 
 <h3>1.4X6 - 1/16/2018</h3>
 
