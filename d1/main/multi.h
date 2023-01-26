@@ -481,6 +481,7 @@ typedef struct netgame_info
 	ubyte						HomingUpdateRate;
 	ubyte						HomingNormQuick;
 	ubyte						AllowCustomModelsTextures;
+	ubyte						ReducedFlash;
 } __pack__ netgame_info;
 
 enum damage_type

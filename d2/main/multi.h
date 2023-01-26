@@ -530,5 +530,6 @@ typedef struct netgame_info
 	ubyte						Tracker;
 #endif
 	ubyte						AllowCustomModelsTextures;
+	ubyte						ReducedFlash;
 } __pack__ netgame_info;
 #endif /* _MULTI_H */
