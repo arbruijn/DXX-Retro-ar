@@ -68,6 +68,8 @@ void net_udp_flush();
 void net_udp_update_netgame(void);
 void net_udp_send_objects(void);
 void net_udp_send_rejoin_sync(int player_num);
+int net_udp_check_game_info_request(ubyte *data, int lite);
+void net_udp_send_version_deny(struct _sockaddr sender_addr);
 void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid, ubyte send_to_observers);
 void net_udp_send_netgame_update();
 void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
@@ -77,7 +79,7 @@ void net_udp_ping_frame(fix64 time);
 void net_udp_p2p_ping_frame(fix64 time); 
 void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr);
 void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr);
-int  net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info, ubyte is_sync);
+int  net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info, ubyte is_sync, ubyte from_tracker);
 void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr );
 void net_udp_send_mdata(int needack, fix64 time);
 void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
@@ -571,6 +573,7 @@ int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockaddr *send
 #define TRACKER_PKT_REGISTER		0	/* Register a game */
 #define TRACKER_PKT_UNREGISTER		1	/* Unregister our game */
 #define TRACKER_PKT_GAMELIST		2	/* Request the game list */
+#define TRACKER_PKT_FORWARD_REQ		24	/* Forward join request */
 
 /* Tracker initialization */
 int udp_tracker_init()
@@ -669,6 +672,43 @@ int udp_tracker_reqgames()
 	return dxx_sendto( UDP_Socket[0], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
 }
 
+/* Ask the tracker to forward our game info request */
+int udp_tracker_fwd_req(struct _sockaddr *host_addr, fix GameID)
+{
+	// Variables
+	int iLen = 24 + UPID_GAME_INFO_REQ_SIZE;
+	ubyte pBuf[iLen], *buf;
+
+	// Put the opcode
+	pBuf[0] = TRACKER_PKT_FORWARD_REQ;
+
+	// Put the game id
+	PUT_INTEL_INT(pBuf + 1, GameID);
+
+	// Put the host address
+#ifdef IPv6
+	pBuf[5] = 6;
+	memcpy(pBuf + 6, &host_addr->sin6_addr.s6_addr, sizeof(struct in6_addr));
+	PUT_INTEL_SHORT(pBuf + 22, ntohs(host_addr->sin6_port));
+#else
+	pBuf[5] = 4;
+	memcpy(pBuf + 6, &host_addr->sin_addr.s_addr, sizeof(struct in_addr));
+	memset(pBuf + 10, 0, 12);
+	PUT_INTEL_SHORT(pBuf + 22, ntohs(host_addr->sin_port));
+#endif
+
+	buf = pBuf + 24;
+	buf[0] = UPID_GAME_INFO_REQ;
+	memcpy(&(buf[1]), UDP_REQ_ID, 4);
+	PUT_INTEL_SHORT(buf + 5, DXX_VERSION_MAJORi);
+	PUT_INTEL_SHORT(buf + 7, DXX_VERSION_MINORi);
+	PUT_INTEL_SHORT(buf + 9, DXX_VERSION_MICROi);
+	PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
+
+	// Send it off
+	return dxx_sendto( UDP_Socket[0], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
+}
+
 /* The tracker has sent us a game.  Let's list it. */
 int udp_tracker_process_game( ubyte *data, int data_len )
 {
@@ -699,7 +739,48 @@ int udp_tracker_process_game( ubyte *data, int data_len )
 		return -1;
 	
 	// Now move on to BIGGER AND BETTER THINGS!
-	net_udp_process_game_info( &data[iPos - 1], data_len - iPos, sAddr, 1 , 0);
+	net_udp_process_game_info( &data[iPos - 1], data_len - iPos, sAddr, 1 , 0 , 1);
+	return 0;
+}
+
+
+/* The tracker has sent us a forwarded game info request. Send reply */
+int udp_tracker_process_forwarded( ubyte *data, int data_len )
+{
+	// All our variables
+	struct _sockaddr sAddr;
+	int iPos = 1;
+	int iPort = 0;
+	int bIPv6 = 0;
+	char *sIP = NULL;
+	int result;
+
+	// Zero it out
+	memset( &sAddr, 0, sizeof( sAddr ) );
+
+	// Get the IPv6 flag from the tracker
+	bIPv6 = data[iPos++];
+	(void)bIPv6; // currently unused
+
+	// Get the IP
+	sIP = (char *)&data[iPos];
+	iPos += strlen( sIP ) + 1;
+
+	// Get the port
+	iPort = GET_INTEL_SHORT( &data[iPos] );
+	iPos += 2;
+
+	// Get the DNS stuff
+	if( udp_dns_filladdr( sIP, iPort, &sAddr ) < 0 )
+		return -1;
+
+	// Now process the request
+	data += iPos;
+	result = net_udp_check_game_info_request(data, 0);
+	if (result == -1)
+		net_udp_send_version_deny(sAddr);
+	else if (result == 1)
+		net_udp_send_game_info(sAddr, UPID_GAME_INFO, 0);
 	return 0;
 }
 #endif /* USE_TRACKER */
@@ -712,6 +793,8 @@ typedef struct direct_join
 	char addrbuf[128];
 	char portbuf[6];
 	ubyte join_as_obs;
+	ubyte from_tracker;
+	fix GameID;
 } direct_join;
 
 
@@ -988,6 +1071,8 @@ int net_udp_game_connect(direct_join *dj)
 	if (timer_query() >= dj->last_time + F1_0)
 	{
 		net_udp_request_game_info(dj->host_addr, 0);
+		if (dj->from_tracker)
+			udp_tracker_fwd_req(&dj->host_addr, dj->GameID);
 		dj->last_time = timer_query();
 	}
 	timer_delay2(5);
@@ -1090,6 +1175,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 				
 				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&dj->host_addr, sizeof(struct _sockaddr));
 				
+				dj->from_tracker = 0;
 				dj->connecting = 1;
 				items[6].text = connecting_txt;
 				return 1;
@@ -1275,6 +1361,8 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				dj->last_time = 0;
 				memcpy((struct _sockaddr *)&dj->host_addr, (struct _sockaddr *)&Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].game_addr, sizeof(struct _sockaddr));
 				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&dj->host_addr, sizeof(struct _sockaddr));
+				dj->from_tracker = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].from_tracker;
+				dj->GameID = Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-4].GameID;
 				dj->connecting = 1;
 				return 1;
 			}
@@ -2983,7 +3071,7 @@ int net_udp_send_request(void)
 	return i;
 }
 
-int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info, ubyte is_sync)
+int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info, ubyte is_sync, ubyte from_tracker)
 {
 	int len = 0, i = 0, j = 0;
 	
@@ -3012,6 +3100,8 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		recv_game.numconnected = data[len];						len++;
 		recv_game.max_numplayers = data[len];						len++;
 		recv_game.game_flags = data[len];						len++;
+
+		recv_game.from_tracker = from_tracker;
 	
 		num_active_udp_changed = 1;
 		
@@ -3281,7 +3371,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			break;
 		
 		case UPID_GAME_INFO:
-			net_udp_process_game_info(data, length, sender_addr, 0, 0);
+			net_udp_process_game_info(data, length, sender_addr, 0, 0, 0);
 			break;
 
 		case UPID_GAME_INFO_LITE_REQ:		
@@ -3290,7 +3380,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			break;
 		
 		case UPID_GAME_INFO_LITE:
-			net_udp_process_game_info(data, length, sender_addr, 1, 0);
+			net_udp_process_game_info(data, length, sender_addr, 1, 0, 0);
 			break;
 
 		case UPID_DUMP:
@@ -3379,6 +3469,10 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 
 		case UPID_TRACKER_INCGAME:
 			udp_tracker_process_game( data, length );
+			break;
+
+		case UPID_TRACKER_FORWARDED:
+			udp_tracker_process_forwarded( data, length );
 			break;
 #endif
 
@@ -4316,7 +4410,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 
 	if (data)
 	{
-		int packet_valid = net_udp_process_game_info(data, data_len, sender_addr, 0, 1);
+		int packet_valid = net_udp_process_game_info(data, data_len, sender_addr, 0, 1, 0);
 		if(! packet_valid ) {
 			con_printf(CON_URGENT, "Dropped invalid sync packet.\n");
 			return; 
