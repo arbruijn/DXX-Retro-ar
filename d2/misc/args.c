@@ -188,8 +188,8 @@ void ReadCmdArgs(void)
 	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);
 	GameArg.MplUdpMyPort		= get_int_arg("-udp_myport", 0);
 #ifdef USE_TRACKER
-	GameArg.MplTrackerAddr		= get_str_arg("-tracker_hostaddr", TRACKER_ADDR_DEFAULT);
-	GameArg.MplTrackerPort		= get_int_arg("-tracker_hostport", TRACKER_PORT_DEFAULT);
+	GameArg.MplTrackerAddr		= TRACKER_ADDR_DEFAULT; //get_str_arg("-tracker_hostaddr", TRACKER_ADDR_DEFAULT);
+	GameArg.MplTrackerPort		= TRACKER_PORT_DEFAULT; //get_int_arg("-tracker_hostport", TRACKER_PORT_DEFAULT);
 #endif
 #endif
 
