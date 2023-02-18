@@ -79,6 +79,7 @@ void net_udp_send_netgame_update();
 #ifdef USE_TRACKER
 #  define UPID_TRACKER_VERIFY			 21 // The tracker has successfully gotten a hold of us
 #  define UPID_TRACKER_INCGAME			 22 // The tracker is sending us some game info
+#  define UPID_TRACKER_FORWARDED		 23 // The tracker is sending us a forwarded join request
 #endif
 
 #define UPID_P2P_PING	25
@@ -108,6 +109,7 @@ typedef struct UDP_netgame_info_lite
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
 	ubyte                           game_flags;
+	ubyte                           from_tracker;
 } __pack__ UDP_netgame_info_lite;
 
 typedef struct UDP_sequence_packet
