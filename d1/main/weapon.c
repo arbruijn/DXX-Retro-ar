@@ -809,7 +809,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 		//select_weapon(weapon_index,0,0,1);
 	}
 
-	return 1;	//return amount used
+	return ammo_count;	//return amount used
 }
 
 /*
