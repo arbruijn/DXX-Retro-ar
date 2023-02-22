@@ -52,6 +52,7 @@
 #include "vers_id.h"
 #include "game.h"
 #include "pngfile.h"
+#include "oglprog.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -418,6 +419,8 @@ int ogl_init_window(int x, int y)
 		con_printf(CON_DEBUG, "EGL: made context current\n");
 	}
 #endif
+	glewInit();
+	ogl_init_prog();
 
 	linedotscale = ((x/640<y/480?x/640:y/480)<1?1:(x/640<y/480?x/640:y/480));
 

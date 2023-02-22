@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stddef.h>
 #define GL_GLEXT_PROTOTYPES
+#if 0
 #ifdef WIN32
 #include <GL/glew.h>
 #else
 #include <GL/gl.h>
+#endif
 #endif
 
 #include "xdescent.h"
