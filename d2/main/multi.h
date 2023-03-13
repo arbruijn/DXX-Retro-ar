@@ -365,6 +365,7 @@ extern int multi_powerup_is_4pack(int);
 extern void multi_send_orb_bonus( char pnum );
 extern void multi_send_got_orb( char pnum );
 extern void multi_add_lifetime_kills(void);
+extern int multi_change_weapon_info(void);
 
 extern int PhallicLimit,PhallicMan;
 extern int Bounty_target;
@@ -531,5 +532,6 @@ typedef struct netgame_info
 #endif
 	ubyte						AllowCustomModelsTextures;
 	ubyte						ReducedFlash;
+	ubyte						DisableGaussSplash;
 } __pack__ netgame_info;
 #endif /* _MULTI_H */
