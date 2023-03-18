@@ -188,6 +188,7 @@ ushort          my_segments_checksum = 0;
 netgame_info Netgame;
 
 bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+ubyte multi_player_tex_color[MAX_PLAYERS];
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
@@ -2519,6 +2520,7 @@ void multi_reset_object_texture (object *objp)
 			}
 			multi_player_textures[7][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
 			multi_player_textures[7][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
+			multi_player_tex_color[7] = wid;
 		}
 	} else {
 		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
@@ -2529,6 +2531,7 @@ void multi_reset_object_texture (object *objp)
 
 		multi_player_textures[id-1][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
 		multi_player_textures[id-1][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
+		multi_player_tex_color[id-1] = wid;
 
 		objp->rtype.pobj_info.alt_textures = id;
 	}
